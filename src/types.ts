@@ -86,14 +86,6 @@ export type Condition =
 export interface ConfettiCardConfig extends LovelaceCardConfig {
   type: string;
   conditions?: (Condition | LegacyCondition)[];
-  /**
-   * An entity whose state change triggers confetti.
-   * If set, confetti fires on any state change of this entity.
-   * If conditions are also set, they act as a guard — confetti only
-   * fires if the entity changes AND all conditions are currently met.
-   * If not set, the card falls back to pure condition edge detection.
-   */
-  trigger_entity?: string;
   /** Play a celebration sound when confetti fires. Defaults to false. */
   sound?: boolean;
 }
