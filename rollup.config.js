@@ -17,14 +17,7 @@ const serveopts = {
   },
 };
 
-const plugins = [
-  nodeResolve(),
-  commonjs(),
-  typescript(),
-  json(),
-  dev && serve(serveopts),
-  !dev && terser()
-];
+const plugins = [nodeResolve(), commonjs(), typescript(), json(), dev && serve(serveopts), !dev && terser()];
 
 const onwarn = (warning, warn) => {
   if (warning.code === 'THIS_IS_UNDEFINED' && warning.id?.includes('/node_modules/')) {
@@ -36,9 +29,9 @@ const onwarn = (warning, warn) => {
 
 export default [
   {
-    input: 'src/boilerplate-card.ts',
+    input: 'src/confetti-card.ts',
     output: {
-      file: 'dist/boilerplate-card.js',
+      file: 'dist/confetti-card.js',
       format: 'es',
       inlineDynamicImports: true,
     },
