@@ -3,9 +3,10 @@ import { customElement, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import confetti from 'canvas-confetti';
 
-import type { ConfettiCardConfig } from './types';
+import type { ConfettiCardConfig, Condition, LegacyCondition } from './types';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
+import { checkConditionsMet } from './conditions';
 
 console.info(
   `%c  CONFETTI-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
@@ -22,7 +23,7 @@ interface WindowWithCustomCards extends Window {
 (window as unknown as WindowWithCustomCards).customCards.push({
   type: 'confetti-card',
   name: 'Confetti Card',
-  description: 'Celebrate with confetti when a button entity is pressed',
+  description: 'Celebrate with confetti when conditions are met',
 });
 
 @customElement('confetti-card')
@@ -33,28 +34,32 @@ export class ConfettiCard extends LitElement {
   }
 
   public static getStubConfig(): Record<string, unknown> {
-    return {};
+    return { conditions: [] };
   }
 
   @state() private config!: ConfettiCardConfig;
-
-  /** Track the last_changed timestamp so we detect new presses. */
-  private _lastChanged: string | null = null;
 
   /** Whether the card is being shown inside the Lovelace editor. */
   @state() private _editMode = false;
 
   /**
+   * Track whether conditions were previously met, so we can detect the
+   * edge transition from false → true and fire confetti only once.
+   * Starts as null to indicate "not yet evaluated" (avoids firing on load).
+   */
+  private _previouslyMet: boolean | null = null;
+
+  /**
    * HA sets .hass on every state change but often reuses the same object
    * reference. Lit's default @property would skip the update because
-   * oldVal === newVal. We use a manual setter so we can check the entity
-   * state ourselves on every call.
+   * oldVal === newVal. We use a manual setter so we can check conditions
+   * on every call.
    */
   private _hass!: HomeAssistant;
 
   public set hass(value: HomeAssistant) {
     this._hass = value;
-    this._checkEntityState();
+    this._evaluateConditions();
   }
 
   public get hass(): HomeAssistant {
@@ -66,6 +71,8 @@ export class ConfettiCard extends LitElement {
       throw new Error(localize('common.invalid_configuration'));
     }
     this.config = { ...config };
+    // Reset edge detection when config changes so we don't false-trigger.
+    this._previouslyMet = null;
   }
 
   public connectedCallback(): void {
@@ -156,30 +163,31 @@ export class ConfettiCard extends LitElement {
     frame();
   }
 
-  /** Check the entity state and fire confetti if the button was pressed. */
-  private _checkEntityState(): void {
-    if (!this._hass || !this.config?.entity) {
+  /** Evaluate conditions and fire confetti on false → true edge. */
+  private _evaluateConditions(): void {
+    if (!this._hass) {
       return;
     }
 
-    const stateObj = this._hass.states[this.config.entity];
-    if (!stateObj) {
+    const conditions = this.config?.conditions;
+    if (!conditions || conditions.length === 0) {
       return;
     }
 
-    const currentChanged = stateObj.last_changed;
+    const met = checkConditionsMet(conditions as (Condition | LegacyCondition)[], this._hass);
 
-    // On first load, just record the timestamp without firing.
-    if (this._lastChanged === null) {
-      this._lastChanged = currentChanged;
+    // On first evaluation, just record the state without firing.
+    if (this._previouslyMet === null) {
+      this._previouslyMet = met;
       return;
     }
 
-    // If last_changed moved forward, the button was pressed.
-    if (currentChanged !== this._lastChanged) {
-      this._lastChanged = currentChanged;
+    // Fire confetti on the edge: conditions were NOT met, now they ARE.
+    if (!this._previouslyMet && met) {
       this._fireConfetti();
     }
+
+    this._previouslyMet = met;
   }
 
   protected render(): TemplateResult | void {
@@ -193,8 +201,11 @@ export class ConfettiCard extends LitElement {
   }
 
   private _renderEditPlaceholder(): TemplateResult {
-    const entityId = this.config?.entity;
-    const entityLabel = entityId ?? localize('common.entity_required');
+    const conditionCount = this.config?.conditions?.length ?? 0;
+    const subtitle =
+      conditionCount > 0
+        ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''} configured`
+        : 'No conditions configured';
 
     return html`
       <ha-card>
@@ -202,7 +213,7 @@ export class ConfettiCard extends LitElement {
           <ha-icon icon="mdi:party-popper"></ha-icon>
           <div class="edit-info">
             <div class="edit-title">Confetti Card</div>
-            <div class="edit-entity">${entityLabel}</div>
+            <div class="edit-subtitle">${subtitle}</div>
           </div>
         </div>
       </ha-card>
@@ -240,7 +251,7 @@ export class ConfettiCard extends LitElement {
         color: var(--primary-text-color);
       }
 
-      .edit-entity {
+      .edit-subtitle {
         font-size: 13px;
         color: var(--secondary-text-color);
         overflow: hidden;

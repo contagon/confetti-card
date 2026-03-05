@@ -2,7 +2,6 @@
   "common": {
     "version": "Versjon",
     "invalid_configuration": "Ikke gyldig konfiguration",
-    "entity_required": "Du ma konfigurere en knappentitet",
-    "entity_not_found": "Entitet ikke funnet"
+    "no_conditions": "Ingen betingelser konfigurert"
   }
 }

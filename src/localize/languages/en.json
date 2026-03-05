@@ -2,7 +2,6 @@
   "common": {
     "version": "Version",
     "invalid_configuration": "Invalid configuration",
-    "entity_required": "You must configure a button entity",
-    "entity_not_found": "Entity not found"
+    "no_conditions": "No conditions configured"
   }
 }
