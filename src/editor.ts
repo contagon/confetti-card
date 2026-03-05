@@ -34,6 +34,13 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
           .conditions=${this._config.conditions ?? []}
           @value-changed=${this._conditionsChanged}
         ></ha-card-conditions-editor>
+
+        <div class="sound-toggle">
+          <label class="toggle-row">
+            <span class="toggle-label">Play celebration sound</span>
+            <input type="checkbox" .checked=${this._config.sound ?? false} @change=${this._soundToggled} />
+          </label>
+        </div>
       </div>
     `;
   }
@@ -49,6 +56,16 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _soundToggled(ev: Event): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    const checked = (ev.target as HTMLInputElement).checked;
+    this._config = { ...this._config, sound: checked };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   static get styles() {
     return css`
       .editor-container {
@@ -60,6 +77,31 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         font-size: 14px;
         color: var(--secondary-text-color);
         line-height: 1.5;
+      }
+
+      .sound-toggle {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--divider-color, #e0e0e0);
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: var(--primary-text-color);
+      }
+
+      input[type='checkbox'] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--primary-color);
       }
     `;
   }

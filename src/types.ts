@@ -86,4 +86,6 @@ export type Condition =
 export interface ConfettiCardConfig extends LovelaceCardConfig {
   type: string;
   conditions?: (Condition | LegacyCondition)[];
+  /** Play a celebration sound when confetti fires. Defaults to false. */
+  sound?: boolean;
 }

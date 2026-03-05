@@ -7,6 +7,7 @@ import type { ConfettiCardConfig, Condition, LegacyCondition } from './types';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { checkConditionsMet } from './conditions';
+import { playCelebrationSound } from './sound';
 
 console.info(
   `%c  CONFETTI-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
@@ -116,8 +117,13 @@ export class ConfettiCard extends LitElement {
     return { grid_min_rows: 0, grid_rows: 0, grid_min_columns: 0, grid_columns: 'full' };
   }
 
-  /** Fire a full-screen confetti celebration. */
+  /** Fire a full-screen confetti celebration, optionally with sound. */
   private _fireConfetti(): void {
+    // Play celebration sound if enabled.
+    if (this.config?.sound) {
+      playCelebrationSound();
+    }
+
     const canvas = document.createElement('canvas');
     canvas.style.position = 'fixed';
     canvas.style.top = '0';
@@ -202,10 +208,12 @@ export class ConfettiCard extends LitElement {
 
   private _renderEditPlaceholder(): TemplateResult {
     const conditionCount = this.config?.conditions?.length ?? 0;
-    const subtitle =
-      conditionCount > 0
-        ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''} configured`
-        : 'No conditions configured';
+    const parts: string[] = [];
+    parts.push(conditionCount > 0 ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''}` : 'No conditions');
+    if (this.config?.sound) {
+      parts.push('sound on');
+    }
+    const subtitle = parts.join(' · ');
 
     return html`
       <ha-card>
