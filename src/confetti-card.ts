@@ -44,23 +44,28 @@ export class ConfettiCard extends LitElement {
   @state() private _editMode = false;
 
   /**
-   * Track whether conditions were previously met, so we can detect the
-   * edge transition from false → true and fire confetti only once.
+   * For condition-only mode: track whether conditions were previously met,
+   * so we can detect the edge transition from false → true.
    * Starts as null to indicate "not yet evaluated" (avoids firing on load).
    */
   private _previouslyMet: boolean | null = null;
 
   /**
+   * For trigger_entity mode: track the last_changed timestamp so we
+   * detect any state change on the entity.
+   */
+  private _lastChanged: string | null = null;
+
+  /**
    * HA sets .hass on every state change but often reuses the same object
    * reference. Lit's default @property would skip the update because
-   * oldVal === newVal. We use a manual setter so we can check conditions
-   * on every call.
+   * oldVal === newVal. We use a manual setter so we can check on every call.
    */
   private _hass!: HomeAssistant;
 
   public set hass(value: HomeAssistant) {
     this._hass = value;
-    this._evaluateConditions();
+    this._evaluate();
   }
 
   public get hass(): HomeAssistant {
@@ -72,8 +77,9 @@ export class ConfettiCard extends LitElement {
       throw new Error(localize('common.invalid_configuration'));
     }
     this.config = { ...config };
-    // Reset edge detection when config changes so we don't false-trigger.
+    // Reset tracking state when config changes so we don't false-trigger.
     this._previouslyMet = null;
+    this._lastChanged = null;
   }
 
   public connectedCallback(): void {
@@ -169,12 +175,68 @@ export class ConfettiCard extends LitElement {
     frame();
   }
 
-  /** Evaluate conditions and fire confetti on false → true edge. */
-  private _evaluateConditions(): void {
-    if (!this._hass) {
+  /**
+   * Main evaluation entry point, called on every hass update.
+   *
+   * Two modes:
+   * 1. trigger_entity set → fire on any state change of that entity,
+   *    optionally guarded by conditions (all must be met).
+   * 2. trigger_entity not set → pure condition edge detection
+   *    (fire when conditions transition from not-met to met).
+   */
+  private _evaluate(): void {
+    if (!this._hass || !this.config) {
       return;
     }
 
+    if (this.config.trigger_entity) {
+      this._evaluateTriggerEntity();
+    } else {
+      this._evaluateConditions();
+    }
+  }
+
+  /**
+   * Trigger entity mode: fire confetti whenever the entity's state changes.
+   * If conditions are configured, they act as a guard — confetti only
+   * fires if the entity changed AND all conditions are currently met.
+   */
+  private _evaluateTriggerEntity(): void {
+    const entityId = this.config.trigger_entity!;
+    const stateObj = this._hass.states[entityId];
+    if (!stateObj) {
+      return;
+    }
+
+    const currentChanged = stateObj.last_changed;
+
+    // On first load, just record the timestamp without firing.
+    if (this._lastChanged === null) {
+      this._lastChanged = currentChanged;
+      return;
+    }
+
+    // No state change — nothing to do.
+    if (currentChanged === this._lastChanged) {
+      return;
+    }
+
+    this._lastChanged = currentChanged;
+
+    // If conditions are configured, check them as a guard.
+    const conditions = this.config.conditions;
+    if (conditions && conditions.length > 0) {
+      const met = checkConditionsMet(conditions as (Condition | LegacyCondition)[], this._hass);
+      if (!met) {
+        return;
+      }
+    }
+
+    this._fireConfetti();
+  }
+
+  /** Condition-only mode: fire confetti on false → true edge. */
+  private _evaluateConditions(): void {
     const conditions = this.config?.conditions;
     if (!conditions || conditions.length === 0) {
       return;
@@ -207,9 +269,17 @@ export class ConfettiCard extends LitElement {
   }
 
   private _renderEditPlaceholder(): TemplateResult {
-    const conditionCount = this.config?.conditions?.length ?? 0;
     const parts: string[] = [];
-    parts.push(conditionCount > 0 ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''}` : 'No conditions');
+    if (this.config?.trigger_entity) {
+      parts.push(this.config.trigger_entity);
+    }
+    const conditionCount = this.config?.conditions?.length ?? 0;
+    if (conditionCount > 0) {
+      parts.push(`${conditionCount} condition${conditionCount !== 1 ? 's' : ''}`);
+    }
+    if (!this.config?.trigger_entity && conditionCount === 0) {
+      parts.push('Not configured');
+    }
     if (this.config?.sound) {
       parts.push('sound on');
     }
