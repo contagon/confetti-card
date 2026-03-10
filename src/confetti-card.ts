@@ -1,5 +1,5 @@
-import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { LitElement, html, TemplateResult, css, CSSResultGroup, PropertyValues } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import confetti from 'canvas-confetti';
 
@@ -38,6 +38,8 @@ export class ConfettiCard extends LitElement {
     return { conditions: [] };
   }
 
+  @property({ attribute: false }) public hass!: HomeAssistant;
+
   @state() private config!: ConfettiCardConfig;
 
   /** Whether the card is being shown inside the Lovelace editor. */
@@ -50,30 +52,29 @@ export class ConfettiCard extends LitElement {
    */
   private _previouslyMet: boolean | null = null;
 
-  /**
-   * HA sets .hass on every state change but often reuses the same object
-   * reference. Lit's default @property would skip the update because
-   * oldVal === newVal. We use a manual setter so we can check conditions
-   * on every call.
-   */
-  private _hass!: HomeAssistant;
-
-  public set hass(value: HomeAssistant) {
-    this._hass = value;
-    this._evaluateConditions();
-  }
-
-  public get hass(): HomeAssistant {
-    return this._hass;
-  }
-
   public setConfig(config: ConfettiCardConfig): void {
     if (!config) {
       throw new Error(localize('common.invalid_configuration'));
     }
-    this.config = { ...config };
+    this.config = {
+      sound: false,
+      ...config,
+    };
     // Reset edge detection when config changes so we don't false-trigger.
     this._previouslyMet = null;
+  }
+
+  protected shouldUpdate(changedProps: PropertyValues): boolean {
+    if (!this.config) {
+      return false;
+    }
+
+    // Always evaluate conditions when hass changes, even if we skip the render.
+    if (changedProps.has('hass')) {
+      this._evaluateConditions();
+    }
+
+    return true;
   }
 
   public connectedCallback(): void {
@@ -179,7 +180,7 @@ export class ConfettiCard extends LitElement {
 
   /** Evaluate conditions and fire confetti on false → true edge. */
   private _evaluateConditions(): void {
-    if (!this._hass) {
+    if (!this.hass) {
       return;
     }
 
@@ -188,7 +189,7 @@ export class ConfettiCard extends LitElement {
       return;
     }
 
-    const met = checkConditionsMet(conditions as (Condition | LegacyCondition)[], this._hass);
+    const met = checkConditionsMet(conditions as (Condition | LegacyCondition)[], this.hass);
 
     // On first evaluation, just record the state without firing.
     if (this._previouslyMet === null) {
