@@ -110,11 +110,19 @@ export class ConfettiCard extends LitElement {
   }
 
   public getCardSize(): number {
-    return 0;
+    return 1;
   }
 
   public getLayoutOptions() {
-    return { grid_min_rows: 0, grid_rows: 0, grid_min_columns: 0, grid_columns: 'full' };
+    return { grid_min_rows: 1, grid_rows: 1, grid_min_columns: 0, grid_columns: 'full' };
+  }
+
+  /**
+   * Modern grid options matching tile card conventions.
+   * Used by HA's section-based layout (2024.8+).
+   */
+  public getGridOptions() {
+    return { columns: 6, rows: 1, min_columns: 6, min_rows: 1 };
   }
 
   /** Fire a full-screen confetti celebration, optionally with sound. */
@@ -219,10 +227,8 @@ export class ConfettiCard extends LitElement {
       <ha-card>
         <div class="edit-placeholder">
           <ha-icon icon="mdi:party-popper"></ha-icon>
-          <div class="edit-info">
-            <div class="edit-title">Confetti Card</div>
-            <div class="edit-subtitle">${subtitle}</div>
-          </div>
+          <span class="edit-title">Confetti Card</span>
+          <span class="edit-subtitle">${subtitle}</span>
         </div>
       </ha-card>
     `;
@@ -232,14 +238,26 @@ export class ConfettiCard extends LitElement {
     return css`
       :host {
         display: block;
+        /* Fill the grid cell so ha-card's height:100% works correctly. */
+        height: 100%;
+        overflow: hidden;
       }
 
-      /* Edit-mode placeholder */
+      ha-card {
+        height: 100%;
+      }
+
+      /* Edit-mode placeholder — matches tile card interior spacing. */
       .edit-placeholder {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 16px;
+        gap: 10px;
+        padding: 10px;
+        box-sizing: border-box;
+        height: 100%;
+        min-width: 0;
+        /* Reclaim the ha-card border space, same as tile card's .container */
+        margin: calc(-1 * var(--ha-card-border-width, 1px));
       }
 
       .edit-placeholder ha-icon {
@@ -248,23 +266,20 @@ export class ConfettiCard extends LitElement {
         flex-shrink: 0;
       }
 
-      .edit-info {
-        flex: 1;
-        min-width: 0;
-      }
-
       .edit-title {
         font-weight: 500;
-        font-size: 16px;
+        font-size: 14px;
         color: var(--primary-text-color);
+        white-space: nowrap;
       }
 
       .edit-subtitle {
-        font-size: 13px;
+        font-size: 12px;
         color: var(--secondary-text-color);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        margin-left: auto;
       }
     `;
   }
