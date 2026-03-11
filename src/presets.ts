@@ -525,11 +525,124 @@ const starsPreset: Preset = {
 };
 
 // ---------------------------------------------------------------------------
+// Preset: Hearts
+// ---------------------------------------------------------------------------
+
+const heartShape = confetti.shapeFromPath({
+  path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+});
+
+const heartsPreset: Preset = {
+  id: 'hearts',
+  label: 'Hearts',
+  icon: 'mdi:heart',
+
+  run(canvas) {
+    const myConfetti = confetti.create(canvas, { resize: true });
+    let cleaned = false;
+
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+
+    // Three staggered bursts from center top
+    const shoot = (delay: number) => {
+      const t = setTimeout(() => {
+        if (cleaned) return;
+        myConfetti({
+          particleCount: 80,
+          spread: 160,
+          startVelocity: -40,
+          ticks: 200,
+          gravity: 0.8,
+          origin: { y: -0.1 },
+          shapes: [heartShape],
+          scalar: 2,
+          colors: ['#ff0044', '#ff2266', '#ff6699', '#cc0033', '#ff3377', '#e60040'],
+        });
+      }, delay);
+      timeouts.push(t);
+    };
+
+    shoot(0);
+    shoot(100);
+    shoot(200);
+
+    const cleanupTimeout = setTimeout(() => {
+      if (!cleaned) {
+        myConfetti.reset();
+        canvas.remove();
+        cleaned = true;
+      }
+    }, 4000);
+    timeouts.push(cleanupTimeout);
+
+    return () => {
+      if (!cleaned) {
+        cleaned = true;
+        timeouts.forEach(clearTimeout);
+        myConfetti.reset();
+        canvas.remove();
+      }
+    };
+  },
+
+  playSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.2;
+      masterGain.connect(ctx.destination);
+
+      // Warm ascending notes — soft and sweet
+      const notes = [392, 440, 523.25, 659.25, 783.99]; // G4, A4, C5, E5, G5
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const t = now + i * 0.1;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+
+      // Soft sustained chord
+      const chordStart = now + 0.3;
+      [523.25, 659.25, 783.99].forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, chordStart);
+        gain.gain.linearRampToValueAtTime(0.1, chordStart + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, chordStart + 1.0);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(chordStart);
+        osc.stop(chordStart + 1.1);
+      });
+    } catch {
+      // Sound is nice-to-have.
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
 /** All available presets, in display order. */
-export const presetRegistry: readonly Preset[] = [confettiPreset, fireworksPreset, snowPreset, starsPreset];
+export const presetRegistry: readonly Preset[] = [
+  confettiPreset,
+  fireworksPreset,
+  snowPreset,
+  starsPreset,
+  heartsPreset,
+];
 
 /** Look up a preset by ID. */
 export function getPreset(id: string): Preset | undefined {
