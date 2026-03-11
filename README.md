@@ -2,7 +2,7 @@
 
 A Home Assistant Lovelace custom card that fires confetti celebrations when entity conditions become true.
 
-I was recently making a wall dashboard with chores for my kids and wanted to make it more fun and rewarding. I also have been wanting to test the extent of "vibe coding" capabilities in a language I'm more unfamiliar with (I mostly write C++, Rust, and Python). This is the result! I am keeping an eye out on the LLM outputs to make sure things seem reasonable, but this seemed like the perfect low-stakes project.
+I was recently making a wall dashboard with chores for my kids and wanted to make it more fun and rewarding. I also have been wanting to test the extent of "vibe coding" capabilities in a task that would take me a significant amount of time on my own (I'm not very familiar with TypeScript). This is the result! I am keeping an eye out on the LLM outputs to make sure things seem reasonable, but this seemed like the perfect low-stakes project.
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -11,9 +11,9 @@ I was recently making a wall dashboard with chores for my kids and wanted to mak
 
 ---
 
-## Overview
-
-Confetti Card is a Lovelace card that shows full-screen confetti effects when all configured conditions are met. 
+<p align="center">
+  <img src=".github/example.gif" alt="Confetti Card Example" />
+</p>
 
 Features:
 
@@ -23,7 +23,6 @@ Features:
 - Condition-based triggering using Home Assistant entity states
 - Visual editor for all settings
 
----
 
 ## Installation
 
