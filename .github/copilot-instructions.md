@@ -18,17 +18,19 @@ yarn lint
 
 ### Primary files
 
-- `src/boilerplate-card.ts` — main card implementation
+- `src/confetti-card.ts` — main card implementation
 - `src/editor.ts` — visual editor (`LovelaceCardEditor`)
+- `src/presets.ts` — confetti effect presets and registry
 - `src/types.ts` — card config and type definitions
-- `src/action-handler-directive.ts` — tap/hold/double-tap directive
+- `src/conditions.ts` — condition evaluation logic
+- `src/const.ts` — version constant
 - `src/localize/localize.ts` — localization helper
 - `src/localize/languages/en.json` and `src/localize/languages/nb.json` — translation files
 - `rollup.config.js` and `rollup.config.dev.js` — production and dev build config
 
 ## Architecture and patterns
 
-- The custom element is `custom:boilerplate-card`.
+- The custom element is `confetti-card`.
 - Prefer Lit 3 patterns and idiomatic web component structure.
 - Keep configuration shape centralized in `src/types.ts`.
 - Keep editor schema and defaults aligned with runtime card behavior.
@@ -52,7 +54,6 @@ yarn lint
 ## Home Assistant integration
 
 - Use Home Assistant helpers and conventions from `custom-card-helpers`.
-- Ensure tap, hold, and double-tap actions are wired through existing action patterns.
 - Support unavailable/loading/error states gracefully.
 - Keep Lovelace config compatibility in mind when changing schema or defaults.
 
