@@ -88,4 +88,6 @@ export interface ConfettiCardConfig extends LovelaceCardConfig {
   conditions?: (Condition | LegacyCondition)[];
   /** Play a celebration sound when confetti fires. Defaults to false. */
   sound?: boolean;
+  /** Enabled preset IDs. Defaults to all presets enabled. */
+  presets?: string[];
 }

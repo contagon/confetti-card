@@ -3,6 +3,7 @@ import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helper
 import { customElement, property, state } from 'lit/decorators.js';
 
 import type { ConfettiCardConfig } from './types';
+import { presetRegistry } from './presets';
 
 @customElement('confetti-card-editor')
 export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor {
@@ -18,27 +19,57 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     return true;
   }
 
+  private get _enabledPresets(): string[] {
+    return this._config?.presets ?? [];
+  }
+
   protected render(): TemplateResult | void {
     if (!this.hass || !this._config) {
       return html`<div>Loading...</div>`;
     }
 
+    const enabled = this._enabledPresets;
+
     return html`
       <div class="editor-container">
-        <div class="sound-toggle">
-          <span class="toggle-label">Play celebration sound</span>
-          <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
+        <div class="misc-section">
+          <span class="section-header">Misc</span>
+          <div class="sound-toggle">
+            <span class="toggle-label">Play celebration sound</span>
+            <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
+          </div>
         </div>
 
-        <p class="description">
-          Confetti will fire when <strong>all</strong> conditions below become true. Add conditions to control when the
-          celebration appears.
-        </p>
-        <ha-card-conditions-editor
-          .hass=${this.hass}
-          .conditions=${this._config.conditions ?? []}
-          @value-changed=${this._conditionsChanged}
-        ></ha-card-conditions-editor>
+        <div class="presets-section">
+          <span class="section-header">Effects</span>
+          <span class="section-description"> When triggered, a random enabled effect will play. </span>
+          ${presetRegistry.map(
+            (preset) => html`
+              <div class="preset-row">
+                <ha-icon .icon=${preset.icon}></ha-icon>
+                <span class="preset-label">${preset.label}</span>
+                <ha-switch
+                  .checked=${enabled.includes(preset.id)}
+                  .preset=${preset.id}
+                  @change=${this._presetToggled}
+                ></ha-switch>
+              </div>
+            `,
+          )}
+        </div>
+
+        <div class="conditions-section">
+          <span class="section-header">Conditions</span>
+          <p class="description">
+            Confetti will fire when <strong>all</strong> conditions below become true. Add conditions to control when
+            the celebration appears.
+          </p>
+          <ha-card-conditions-editor
+            .hass=${this.hass}
+            .conditions=${this._config.conditions ?? []}
+            @value-changed=${this._conditionsChanged}
+          ></ha-card-conditions-editor>
+        </div>
       </div>
     `;
   }
@@ -64,6 +95,35 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _presetToggled(ev: Event): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    const target = ev.target as HTMLInputElement & { preset: string };
+    const presetId = target.preset;
+    const checked = target.checked;
+    const current = [...this._enabledPresets];
+
+    if (checked && !current.includes(presetId)) {
+      current.push(presetId);
+    } else if (!checked) {
+      const idx = current.indexOf(presetId);
+      if (idx !== -1) {
+        // Don't allow disabling the last preset
+        if (current.length <= 1) {
+          // Re-check the toggle since we're preventing the change
+          target.checked = true;
+          return;
+        }
+        current.splice(idx, 1);
+      }
+    }
+
+    this._config = { ...this._config, presets: current };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   static get styles() {
     return css`
       .editor-container {
@@ -81,14 +141,61 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--divider-color, #e0e0e0);
+        padding: 8px 0;
       }
 
       .toggle-label {
         font-size: 14px;
         color: var(--primary-text-color);
+      }
+
+      .misc-section {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--divider-color, #e0e0e0);
+      }
+
+      .conditions-section {
+      }
+
+      .presets-section {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--divider-color, #e0e0e0);
+      }
+
+      .section-header {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary-text-color);
+        margin-bottom: 4px;
+      }
+
+      .section-description {
+        display: block;
+        font-size: 12px;
+        color: var(--secondary-text-color);
+        margin-bottom: 12px;
+      }
+
+      .preset-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+      }
+
+      .preset-row ha-icon {
+        --mdc-icon-size: 20px;
+        color: var(--secondary-text-color);
+        flex-shrink: 0;
+      }
+
+      .preset-label {
+        font-size: 14px;
+        color: var(--primary-text-color);
+        flex: 1;
       }
     `;
   }

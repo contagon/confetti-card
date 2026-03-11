@@ -1,13 +1,12 @@
 import { LitElement, html, TemplateResult, css, CSSResultGroup, PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
-import confetti from 'canvas-confetti';
 
 import type { ConfettiCardConfig, Condition, LegacyCondition } from './types';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { checkConditionsMet } from './conditions';
-import { playCelebrationSound } from './sound';
+import { presetRegistry, pickRandomPreset, createFullScreenCanvas } from './presets';
 
 console.info(
   `%c  CONFETTI-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
@@ -35,7 +34,11 @@ export class ConfettiCard extends LitElement {
   }
 
   public static getStubConfig(): Record<string, unknown> {
-    return { conditions: [] };
+    return {
+      conditions: [],
+      sound: false,
+      presets: presetRegistry.map((p) => p.id),
+    };
   }
 
   /**
@@ -63,7 +66,6 @@ export class ConfettiCard extends LitElement {
       throw new Error(localize('common.invalid_configuration'));
     }
     this.config = {
-      sound: false,
       ...config,
     };
     // Reset edge detection when config changes so we don't false-trigger.
@@ -150,56 +152,18 @@ export class ConfettiCard extends LitElement {
     return 1;
   }
 
-  /** Fire a full-screen confetti celebration, optionally with sound. */
+  /** Fire a celebration effect using a random enabled preset, optionally with sound. */
   private _fireConfetti(): void {
-    // Play celebration sound if enabled.
+    const enabledIds = this.config.presets!;
+    const preset = pickRandomPreset(enabledIds);
+
+    // Play preset-specific sound if enabled.
     if (this.config?.sound) {
-      playCelebrationSound();
+      preset.playSound();
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '99999';
-    document.body.appendChild(canvas);
-
-    const myConfetti = confetti.create(canvas, { resize: true });
-
-    const duration = 3000;
-    const end = Date.now() + duration;
-
-    const frame = () => {
-      myConfetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.6 },
-        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
-      });
-      myConfetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.6 },
-        colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'],
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      } else {
-        // Clean up after animation finishes and particles settle.
-        setTimeout(() => {
-          myConfetti.reset();
-          canvas.remove();
-        }, 2000);
-      }
-    };
-
-    frame();
+    const canvas = createFullScreenCanvas();
+    preset.run(canvas);
   }
 
   /** Evaluate conditions and fire confetti on false → true edge. */
@@ -241,8 +205,10 @@ export class ConfettiCard extends LitElement {
 
   private _renderEditPlaceholder(): TemplateResult {
     const conditionCount = this.config?.conditions?.length ?? 0;
+    const presetCount = this.config.presets?.length ?? 0;
     const parts: string[] = [];
     parts.push(conditionCount > 0 ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''}` : 'No conditions');
+    parts.push(`${presetCount} preset${presetCount !== 1 ? 's' : ''}`);
     if (this.config?.sound) {
       parts.push('sound on');
     }
