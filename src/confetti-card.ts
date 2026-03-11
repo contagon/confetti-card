@@ -38,6 +38,12 @@ export class ConfettiCard extends LitElement {
     return { conditions: [] };
   }
 
+  /**
+   * Tell hui-card to keep delivering hass updates even while
+   * the card is hidden, so condition evaluation continues.
+   */
+  public connectedWhileHidden = true;
+
   @property({ attribute: false }) public hass!: HomeAssistant;
 
   @state() private config!: ConfettiCardConfig;
@@ -80,6 +86,7 @@ export class ConfettiCard extends LitElement {
   public connectedCallback(): void {
     super.connectedCallback();
     this._detectEditMode();
+    this._updateCardVisibility();
   }
 
   /**
@@ -110,12 +117,24 @@ export class ConfettiCard extends LitElement {
     this._editMode = false;
   }
 
-  public getCardSize(): number {
-    return 1;
+  /**
+   * Use HA's card-visibility-changed protocol to tell hui-card and
+   * the layout wrappers to collapse this card's grid space when not
+   * in edit mode.
+   */
+  private _updateCardVisibility(): void {
+    if (this._editMode) {
+      this.style.display = '';
+      this.toggleAttribute('hidden', false);
+    } else {
+      this.style.display = 'none';
+      this.toggleAttribute('hidden', true);
+    }
+    this.dispatchEvent(new Event('card-visibility-changed', { bubbles: true, cancelable: true }));
   }
 
-  public getLayoutOptions() {
-    return { grid_min_rows: 1, grid_rows: 1, grid_min_columns: 0, grid_columns: 'full' };
+  public getCardSize(): number {
+    return 1;
   }
 
   /**
@@ -123,7 +142,7 @@ export class ConfettiCard extends LitElement {
    * Used by HA's section-based layout (2024.8+).
    */
   public getGridOptions() {
-    return { columns: 6, rows: 1, min_columns: 6, min_rows: 1 };
+    return { columns: 12, rows: 1, min_columns: 12, min_rows: 1 };
   }
 
   /** Fire a full-screen confetti celebration, optionally with sound. */
