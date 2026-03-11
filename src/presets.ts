@@ -799,7 +799,7 @@ const rocketsPreset: Preset = {
 const rainbowPreset: Preset = {
   id: 'rainbow',
   label: 'Rainbow',
-  icon: 'mdi:rainbow',
+  icon: 'mdi:looks',
 
   run(canvas) {
     const myConfetti = confetti.create(canvas, { resize: true });
@@ -972,7 +972,7 @@ const volcanoShape = confetti.shapeFromText({ text: '🌋', scalar: 1.5 });
 const dinosaursPreset: Preset = {
   id: 'dinosaurs',
   label: 'Dinosaurs',
-  icon: 'mdi:dinosaur',
+  icon: 'mdi:paw',
 
   run(canvas) {
     const myConfetti = confetti.create(canvas, { resize: true });
@@ -1350,6 +1350,194 @@ const unicornPreset: Preset = {
 };
 
 // ---------------------------------------------------------------------------
+// Preset: Overload  (massive wall-to-wall confetti chaos)
+// ---------------------------------------------------------------------------
+
+const overloadPreset: Preset = {
+  id: 'overload',
+  label: 'Overload',
+  icon: 'mdi:alert-octagram',
+
+  run(canvas) {
+    const myConfetti = confetti.create(canvas, { resize: true });
+    const duration = 15000;
+    const end = Date.now() + duration;
+    let raf = 0;
+    let cleaned = false;
+
+    const allColors = [
+      '#ff0000',
+      '#ff4400',
+      '#ff8800',
+      '#ffcc00',
+      '#ffff00',
+      '#88ff00',
+      '#00ff00',
+      '#00ff88',
+      '#00ffff',
+      '#0088ff',
+      '#0000ff',
+      '#4400ff',
+      '#8800ff',
+      '#cc00ff',
+      '#ff00ff',
+      '#ff0088',
+    ];
+
+    const frame = () => {
+      if (cleaned) return;
+
+      // Heavy streams from both sides
+      for (let i = 0; i < 3; i++) {
+        myConfetti({
+          particleCount: 8,
+          angle: 60 + Math.random() * 10,
+          spread: 70,
+          startVelocity: 40 + Math.random() * 30,
+          ticks: 400,
+          gravity: 0.6,
+          origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
+          colors: allColors,
+          shapes: ['square', 'circle'],
+          scalar: 1.2 + Math.random() * 1.2,
+        });
+        myConfetti({
+          particleCount: 8,
+          angle: 110 + Math.random() * 10,
+          spread: 70,
+          startVelocity: 40 + Math.random() * 30,
+          ticks: 400,
+          gravity: 0.6,
+          origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
+          colors: allColors,
+          shapes: ['square', 'circle'],
+          scalar: 1.2 + Math.random() * 1.2,
+        });
+      }
+
+      // Rain from above across the full width
+      myConfetti({
+        particleCount: 10,
+        startVelocity: 0,
+        spread: 360,
+        ticks: 500,
+        gravity: 0.4,
+        drift: Math.random() * 4 - 2,
+        origin: { x: Math.random(), y: -0.05 },
+        colors: allColors,
+        shapes: ['square', 'circle', 'star'],
+        scalar: 1.5 + Math.random() * 1.0,
+      });
+
+      // Periodic center explosions
+      if (Math.random() < 0.08) {
+        myConfetti({
+          particleCount: 120,
+          startVelocity: 35,
+          spread: 360,
+          ticks: 300,
+          gravity: 0.5,
+          origin: { x: 0.2 + Math.random() * 0.6, y: 0.2 + Math.random() * 0.5 },
+          colors: allColors,
+          shapes: ['square', 'circle', 'star'],
+          scalar: 2.0,
+        });
+      }
+
+      if (Date.now() < end) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        setTimeout(() => {
+          if (!cleaned) {
+            myConfetti.reset();
+            canvas.remove();
+            cleaned = true;
+          }
+        }, 8000);
+      }
+    };
+
+    frame();
+
+    return () => {
+      if (!cleaned) {
+        cleaned = true;
+        cancelAnimationFrame(raf);
+        myConfetti.reset();
+        canvas.remove();
+      }
+    };
+  },
+
+  playSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.25;
+      masterGain.connect(ctx.destination);
+
+      // Chaotic layered fanfares — multiple rapid ascending runs
+      for (let run = 0; run < 3; run++) {
+        const runStart = now + run * 0.35;
+        const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq * (1 + run * 0.25);
+          const t = runStart + i * 0.06;
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.3, t + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(t);
+          osc.stop(t + 0.3);
+        });
+      }
+
+      // Sustained wall of shimmer
+      const shimmerStart = now + 0.5;
+      for (let i = 0; i < 12; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 1200 + Math.random() * 3000;
+        const t = shimmerStart + i * 0.12;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.1, t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(t);
+        osc.stop(t + 0.35);
+      }
+
+      // Rumbling bass bed
+      const bassStart = now + 0.2;
+      for (let i = 0; i < 4; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = 60 + Math.random() * 40;
+        osc.detune.value = Math.random() * 30 - 15;
+        gain.gain.setValueAtTime(0, bassStart);
+        gain.gain.linearRampToValueAtTime(0.06, bassStart + 0.1);
+        gain.gain.linearRampToValueAtTime(0.06, bassStart + 1.5);
+        gain.gain.exponentialRampToValueAtTime(0.001, bassStart + 2.5);
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(bassStart);
+        osc.stop(bassStart + 2.6);
+      }
+    } catch {
+      // Sound is nice-to-have.
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
@@ -1364,6 +1552,7 @@ export const presetRegistry: readonly Preset[] = [
   rainbowPreset,
   dinosaursPreset,
   unicornPreset,
+  overloadPreset,
 ];
 
 /** Look up a preset by ID. */

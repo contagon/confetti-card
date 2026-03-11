@@ -46,13 +46,13 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
           ${presetRegistry.map(
             (preset) => html`
               <div class="preset-row">
-                <ha-icon .icon=${preset.icon}></ha-icon>
-                <span class="preset-label">${preset.label}</span>
                 <ha-switch
                   .checked=${enabled.includes(preset.id)}
                   .preset=${preset.id}
                   @change=${this._presetToggled}
                 ></ha-switch>
+                <ha-icon .icon=${preset.icon}></ha-icon>
+                <span class="preset-label">${preset.label}</span>
               </div>
             `,
           )}
@@ -183,7 +183,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 8px 0;
+        padding: 8px 0 8px 24px;
       }
 
       .preset-row ha-icon {
@@ -195,7 +195,6 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       .preset-label {
         font-size: 14px;
         color: var(--primary-text-color);
-        flex: 1;
       }
     `;
   }
