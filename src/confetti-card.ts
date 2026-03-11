@@ -83,6 +83,11 @@ export class ConfettiCard extends LitElement {
     return true;
   }
 
+  /**
+   * HA rebuilds card elements when entering/exiting the dashboard editor,
+   * so connectedCallback fires fresh each time and edit-mode detection
+   * runs again automatically.
+   */
   public connectedCallback(): void {
     super.connectedCallback();
     this._detectEditMode();
@@ -133,16 +138,16 @@ export class ConfettiCard extends LitElement {
     this.dispatchEvent(new Event('card-visibility-changed', { bubbles: true, cancelable: true }));
   }
 
-  public getCardSize(): number {
-    return 1;
-  }
-
   /**
    * Modern grid options matching tile card conventions.
    * Used by HA's section-based layout (2024.8+).
    */
   public getGridOptions() {
     return { columns: 12, rows: 1, min_columns: 12, min_rows: 1 };
+  }
+
+  public getCardSize(): number {
+    return 1;
   }
 
   /** Fire a full-screen confetti celebration, optionally with sound. */

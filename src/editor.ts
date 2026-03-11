@@ -25,6 +25,11 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
 
     return html`
       <div class="editor-container">
+        <div class="sound-toggle">
+          <span class="toggle-label">Play celebration sound</span>
+          <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
+        </div>
+
         <p class="description">
           Confetti will fire when <strong>all</strong> conditions below become true. Add conditions to control when the
           celebration appears.
@@ -34,13 +39,6 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
           .conditions=${this._config.conditions ?? []}
           @value-changed=${this._conditionsChanged}
         ></ha-card-conditions-editor>
-
-        <div class="sound-toggle">
-          <label class="toggle-row">
-            <span class="toggle-label">Play celebration sound</span>
-            <input type="checkbox" .checked=${this._config.sound ?? false} @change=${this._soundToggled} />
-          </label>
-        </div>
       </div>
     `;
   }
@@ -80,28 +78,17 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       }
 
       .sound-toggle {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid var(--divider-color, #e0e0e0);
-      }
-
-      .toggle-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        cursor: pointer;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--divider-color, #e0e0e0);
       }
 
       .toggle-label {
         font-size: 14px;
         color: var(--primary-text-color);
-      }
-
-      input[type='checkbox'] {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-        accent-color: var(--primary-color);
       }
     `;
   }
