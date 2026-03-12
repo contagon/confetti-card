@@ -38,6 +38,10 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
             <span class="toggle-label">Play celebration sound</span>
             <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
           </div>
+          <div class="sound-toggle">
+            <span class="toggle-label">Render behind popups</span>
+            <ha-switch .checked=${this._config.behind_popup ?? false} @change=${this._behindPopupToggled}></ha-switch>
+          </div>
         </div>
 
         <div class="presets-section">
@@ -92,6 +96,16 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
 
     const checked = (ev.target as HTMLInputElement).checked;
     this._config = { ...this._config, sound: checked };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _behindPopupToggled(ev: Event): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    const checked = (ev.target as HTMLInputElement).checked;
+    this._config = { ...this._config, behind_popup: checked };
     fireEvent(this, 'config-changed', { config: this._config });
   }
 

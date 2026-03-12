@@ -162,7 +162,9 @@ export class ConfettiCard extends LitElement {
       preset.playSound();
     }
 
-    const canvas = createFullScreenCanvas();
+    // Use a low z-index so confetti renders behind Bubble Card popups (z-index 5).
+    const zIndex = this.config.behind_popup ? 3 : 99999;
+    const canvas = createFullScreenCanvas(zIndex);
     preset.run(canvas);
   }
 

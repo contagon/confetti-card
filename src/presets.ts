@@ -48,7 +48,7 @@ export interface Preset {
 // Helper: create a full-screen canvas
 // ---------------------------------------------------------------------------
 
-export function createFullScreenCanvas(): HTMLCanvasElement {
+export function createFullScreenCanvas(zIndex = 99999): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.style.position = 'fixed';
   canvas.style.top = '0';
@@ -56,7 +56,7 @@ export function createFullScreenCanvas(): HTMLCanvasElement {
   canvas.style.width = '100vw';
   canvas.style.height = '100vh';
   canvas.style.pointerEvents = 'none';
-  canvas.style.zIndex = '99999';
+  canvas.style.zIndex = String(zIndex);
   document.body.appendChild(canvas);
   return canvas;
 }

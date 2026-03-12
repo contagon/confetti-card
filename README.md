@@ -23,7 +23,6 @@ Features:
 - Condition-based triggering using Home Assistant entity states
 - Visual editor for all settings
 
-
 ## Installation
 
 ### HACS (recommended)
@@ -80,12 +79,13 @@ conditions:
 
 ## Options
 
-| Name         | Type     | Required     | Description                                                      | Default     |
-| ------------ | -------- | ------------ | ---------------------------------------------------------------- | ----------- |
-| `type`       | string   | **Required** | `custom:confetti-card`                                           |             |
-| `conditions` | list     | **Optional** | List of HA conditions -- confetti fires when all become true     | `[]`        |
-| `sound`      | boolean  | **Optional** | Play the preset's celebration sound effect                       | `false`     |
-| `presets`    | string[] | **Optional** | List of enabled preset IDs (a random one is chosen each trigger) | all presets |
+| Name           | Type     | Required     | Description                                                      | Default     |
+| -------------- | -------- | ------------ | ---------------------------------------------------------------- | ----------- |
+| `type`         | string   | **Required** | `custom:confetti-card`                                           |             |
+| `conditions`   | list     | **Optional** | List of HA conditions -- confetti fires when all become true     | `[]`        |
+| `sound`        | boolean  | **Optional** | Play the preset's celebration sound effect                       | `false`     |
+| `behind_popup` | boolean  | **Optional** | Render confetti behind Bubble Card popups instead of in front    | `false`     |
+| `presets`      | string[] | **Optional** | List of enabled preset IDs (a random one is chosen each trigger) | all presets |
 
 ### Available presets
 

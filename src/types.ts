@@ -90,4 +90,6 @@ export interface ConfettiCardConfig extends LovelaceCardConfig {
   sound?: boolean;
   /** Enabled preset IDs. Defaults to all presets enabled. */
   presets?: string[];
+  /** Show confetti behind Bubble Card popups instead of in front. Defaults to false. */
+  behind_popup?: boolean;
 }
