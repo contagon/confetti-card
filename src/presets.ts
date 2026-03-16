@@ -1387,40 +1387,38 @@ const overloadPreset: Preset = {
     const frame = () => {
       if (cleaned) return;
 
-      // Heavy streams from both sides
-      for (let i = 0; i < 3; i++) {
-        myConfetti({
-          particleCount: 8,
-          angle: 60 + Math.random() * 10,
-          spread: 70,
-          startVelocity: 40 + Math.random() * 30,
-          ticks: 400,
-          gravity: 0.6,
-          origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
-          colors: allColors,
-          shapes: ['square', 'circle'],
-          scalar: 1.2 + Math.random() * 1.2,
-        });
-        myConfetti({
-          particleCount: 8,
-          angle: 110 + Math.random() * 10,
-          spread: 70,
-          startVelocity: 40 + Math.random() * 30,
-          ticks: 400,
-          gravity: 0.6,
-          origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
-          colors: allColors,
-          shapes: ['square', 'circle'],
-          scalar: 1.2 + Math.random() * 1.2,
-        });
-      }
+      // Streams from both sides
+      myConfetti({
+        particleCount: 3,
+        angle: 60 + Math.random() * 10,
+        spread: 70,
+        startVelocity: 40 + Math.random() * 30,
+        ticks: 250,
+        gravity: 0.6,
+        origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
+        colors: allColors,
+        shapes: ['square', 'circle'],
+        scalar: 1.2 + Math.random() * 1.2,
+      });
+      myConfetti({
+        particleCount: 3,
+        angle: 110 + Math.random() * 10,
+        spread: 70,
+        startVelocity: 40 + Math.random() * 30,
+        ticks: 250,
+        gravity: 0.6,
+        origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
+        colors: allColors,
+        shapes: ['square', 'circle'],
+        scalar: 1.2 + Math.random() * 1.2,
+      });
 
       // Rain from above across the full width
       myConfetti({
-        particleCount: 10,
+        particleCount: 3,
         startVelocity: 0,
         spread: 360,
-        ticks: 500,
+        ticks: 300,
         gravity: 0.4,
         drift: Math.random() * 4 - 2,
         origin: { x: Math.random(), y: -0.05 },
@@ -1430,12 +1428,12 @@ const overloadPreset: Preset = {
       });
 
       // Periodic center explosions
-      if (Math.random() < 0.08) {
+      if (Math.random() < 0.03) {
         myConfetti({
-          particleCount: 120,
+          particleCount: 30,
           startVelocity: 35,
           spread: 360,
-          ticks: 300,
+          ticks: 200,
           gravity: 0.5,
           origin: { x: 0.2 + Math.random() * 0.6, y: 0.2 + Math.random() * 0.5 },
           colors: allColors,
