@@ -1388,36 +1388,34 @@ const overloadPreset: Preset = {
       if (cleaned) return;
 
       // Streams from both sides
-      for (let i = 0; i < 2; i++) {
-        myConfetti({
-          particleCount: 5,
-          angle: 60 + Math.random() * 10,
-          spread: 70,
-          startVelocity: 40 + Math.random() * 30,
-          ticks: 250,
-          gravity: 0.6,
-          origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
-          colors: allColors,
-          shapes: ['square', 'circle'],
-          scalar: 1.2 + Math.random() * 1.2,
-        });
-        myConfetti({
-          particleCount: 5,
-          angle: 110 + Math.random() * 10,
-          spread: 70,
-          startVelocity: 40 + Math.random() * 30,
-          ticks: 250,
-          gravity: 0.6,
-          origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
-          colors: allColors,
-          shapes: ['square', 'circle'],
-          scalar: 1.2 + Math.random() * 1.2,
-        });
-      }
+      myConfetti({
+        particleCount: 3,
+        angle: 60 + Math.random() * 10,
+        spread: 70,
+        startVelocity: 40 + Math.random() * 30,
+        ticks: 250,
+        gravity: 0.6,
+        origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
+        colors: allColors,
+        shapes: ['square', 'circle'],
+        scalar: 1.2 + Math.random() * 1.2,
+      });
+      myConfetti({
+        particleCount: 3,
+        angle: 110 + Math.random() * 10,
+        spread: 70,
+        startVelocity: 40 + Math.random() * 30,
+        ticks: 250,
+        gravity: 0.6,
+        origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
+        colors: allColors,
+        shapes: ['square', 'circle'],
+        scalar: 1.2 + Math.random() * 1.2,
+      });
 
       // Rain from above across the full width
       myConfetti({
-        particleCount: 6,
+        particleCount: 3,
         startVelocity: 0,
         spread: 360,
         ticks: 300,
@@ -1430,9 +1428,9 @@ const overloadPreset: Preset = {
       });
 
       // Periodic center explosions
-      if (Math.random() < 0.05) {
+      if (Math.random() < 0.03) {
         myConfetti({
-          particleCount: 60,
+          particleCount: 30,
           startVelocity: 35,
           spread: 360,
           ticks: 200,
