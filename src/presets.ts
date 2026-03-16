@@ -1360,7 +1360,7 @@ const overloadPreset: Preset = {
 
   run(canvas) {
     const myConfetti = confetti.create(canvas, { resize: true });
-    const duration = 10000;
+    const duration = 15000;
     const end = Date.now() + duration;
     let raf = 0;
     let cleaned = false;
@@ -1451,7 +1451,7 @@ const overloadPreset: Preset = {
             canvas.remove();
             cleaned = true;
           }
-        }, 4000);
+        }, 8000);
       }
     };
 
