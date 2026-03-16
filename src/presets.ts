@@ -1360,7 +1360,7 @@ const overloadPreset: Preset = {
 
   run(canvas) {
     const myConfetti = confetti.create(canvas, { resize: true });
-    const duration = 15000;
+    const duration = 10000;
     const end = Date.now() + duration;
     let raf = 0;
     let cleaned = false;
@@ -1387,14 +1387,14 @@ const overloadPreset: Preset = {
     const frame = () => {
       if (cleaned) return;
 
-      // Heavy streams from both sides
-      for (let i = 0; i < 3; i++) {
+      // Streams from both sides
+      for (let i = 0; i < 2; i++) {
         myConfetti({
-          particleCount: 8,
+          particleCount: 5,
           angle: 60 + Math.random() * 10,
           spread: 70,
           startVelocity: 40 + Math.random() * 30,
-          ticks: 400,
+          ticks: 250,
           gravity: 0.6,
           origin: { x: 0, y: 0.2 + Math.random() * 0.6 },
           colors: allColors,
@@ -1402,11 +1402,11 @@ const overloadPreset: Preset = {
           scalar: 1.2 + Math.random() * 1.2,
         });
         myConfetti({
-          particleCount: 8,
+          particleCount: 5,
           angle: 110 + Math.random() * 10,
           spread: 70,
           startVelocity: 40 + Math.random() * 30,
-          ticks: 400,
+          ticks: 250,
           gravity: 0.6,
           origin: { x: 1, y: 0.2 + Math.random() * 0.6 },
           colors: allColors,
@@ -1417,10 +1417,10 @@ const overloadPreset: Preset = {
 
       // Rain from above across the full width
       myConfetti({
-        particleCount: 10,
+        particleCount: 6,
         startVelocity: 0,
         spread: 360,
-        ticks: 500,
+        ticks: 300,
         gravity: 0.4,
         drift: Math.random() * 4 - 2,
         origin: { x: Math.random(), y: -0.05 },
@@ -1430,12 +1430,12 @@ const overloadPreset: Preset = {
       });
 
       // Periodic center explosions
-      if (Math.random() < 0.08) {
+      if (Math.random() < 0.05) {
         myConfetti({
-          particleCount: 120,
+          particleCount: 60,
           startVelocity: 35,
           spread: 360,
-          ticks: 300,
+          ticks: 200,
           gravity: 0.5,
           origin: { x: 0.2 + Math.random() * 0.6, y: 0.2 + Math.random() * 0.5 },
           colors: allColors,
@@ -1453,7 +1453,7 @@ const overloadPreset: Preset = {
             canvas.remove();
             cleaned = true;
           }
-        }, 8000);
+        }, 4000);
       }
     };
 
