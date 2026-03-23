@@ -50,6 +50,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
           ${presetRegistry.map(
             (preset) => html`
               <div class="preset-row">
+                <mwc-button class="test-button" .preset=${preset.id} @click=${this._testPreset}>Try</mwc-button>
                 <ha-switch
                   .checked=${enabled.includes(preset.id)}
                   .preset=${preset.id}
@@ -57,7 +58,6 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
                 ></ha-switch>
                 <ha-icon .icon=${preset.icon}></ha-icon>
                 <span class="preset-label">${preset.label}</span>
-                <mwc-button class="test-button" .preset=${preset.id} @click=${this._testPreset}> Test </mwc-button>
               </div>
             `,
           )}
@@ -228,7 +228,11 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       }
 
       .test-button {
-        --mdc-theme-primary: var(--primary-color);
+        /* Flat text button style, commonly used for 'Add X' actions in HA */
+        --mdc-button-horizontal-padding: 4px;
+        --mdc-typography-button-font-size: 14px;
+        --mdc-typography-button-text-transform: none;
+        margin-right: 8px;
       }
     `;
   }
