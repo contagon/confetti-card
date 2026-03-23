@@ -34,12 +34,13 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       <div class="editor-container">
         <div class="misc-section">
           <span class="section-header">Misc</span>
+          <span class="section-description">Additional options for the confetti effect.</span>
           <div class="sound-toggle">
-            <span class="toggle-label">Play celebration sound</span>
+            <span class="toggle-label" @click=${this._soundToggled}>Play celebration sound</span>
             <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
           </div>
           <div class="sound-toggle">
-            <span class="toggle-label">Render behind popups</span>
+            <span class="toggle-label" @click=${this._behindPopupToggled}>Render behind popups</span>
             <ha-switch .checked=${this._config.behind_popup ?? false} @change=${this._behindPopupToggled}></ha-switch>
           </div>
         </div>
@@ -61,7 +62,14 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
                       .preset=${preset.id}
                       @change=${this._presetToggled}
                     ></ha-switch>
-                    <button class="test-button" .preset=${preset.id} @click=${this._testPreset}>Try</button>
+                    <ha-button
+                      size="small"
+                      appearance="filled"
+                      class="test-button"
+                      .preset=${preset.id}
+                      @click=${this._testPreset}
+                      >Try</ha-button
+                    >
                   </div>
                 </div>
               `,
@@ -101,7 +109,9 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       return;
     }
 
-    const checked = (ev.target as HTMLInputElement).checked;
+    const target = ev.target as HTMLInputElement;
+    // If clicked on the label, toggle the current value; otherwise use the switch's checked state
+    const checked = target.tagName === 'HA-SWITCH' ? target.checked : !(this._config.sound ?? false);
     this._config = { ...this._config, sound: checked };
     fireEvent(this, 'config-changed', { config: this._config });
   }
@@ -111,7 +121,9 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       return;
     }
 
-    const checked = (ev.target as HTMLInputElement).checked;
+    const target = ev.target as HTMLInputElement;
+    // If clicked on the label, toggle the current value; otherwise use the switch's checked state
+    const checked = target.tagName === 'HA-SWITCH' ? target.checked : !(this._config.behind_popup ?? false);
     this._config = { ...this._config, behind_popup: checked };
     fireEvent(this, 'config-changed', { config: this._config });
   }
@@ -207,6 +219,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       .toggle-label {
         font-size: 14px;
         color: var(--primary-text-color);
+        cursor: pointer;
       }
 
       .misc-section {
@@ -262,7 +275,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 4px 0;
       }
 
       .preset-info {
@@ -290,19 +303,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       }
 
       .test-button {
-        background: none;
-        border: 1px solid var(--primary-color);
-        border-radius: 4px;
-        color: var(--primary-color);
-        cursor: pointer;
-        font-size: 12px;
-        font-family: inherit;
-        padding: 4px 12px;
-        transition: background-color 0.2s;
-      }
-
-      .test-button:hover {
-        background-color: rgba(var(--rgb-primary-color), 0.1);
+        --ha-button-height: 28px;
       }
     `;
   }
