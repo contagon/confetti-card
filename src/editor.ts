@@ -47,20 +47,26 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         <div class="presets-section">
           <span class="section-header">Effects</span>
           <span class="section-description"> When triggered, a random enabled effect will play. </span>
-          ${presetRegistry.map(
-            (preset) => html`
-              <div class="preset-row">
-                <mwc-button class="test-button" .preset=${preset.id} @click=${this._testPreset}>Try</mwc-button>
-                <ha-switch
-                  .checked=${enabled.includes(preset.id)}
-                  .preset=${preset.id}
-                  @change=${this._presetToggled}
-                ></ha-switch>
-                <ha-icon .icon=${preset.icon}></ha-icon>
-                <span class="preset-label">${preset.label}</span>
-              </div>
-            `,
-          )}
+          <div class="presets-grid">
+            ${presetRegistry.map(
+              (preset) => html`
+                <div class="preset-row">
+                  <div class="preset-info" .preset=${preset.id} @click=${this._presetInfoClicked}>
+                    <ha-icon .icon=${preset.icon}></ha-icon>
+                    <span class="preset-label">${preset.label}</span>
+                  </div>
+                  <div class="preset-actions">
+                    <ha-switch
+                      .checked=${enabled.includes(preset.id)}
+                      .preset=${preset.id}
+                      @change=${this._presetToggled}
+                    ></ha-switch>
+                    <button class="test-button" .preset=${preset.id} @click=${this._testPreset}>Try</button>
+                  </div>
+                </div>
+              `,
+            )}
+          </div>
         </div>
 
         <div class="conditions-section">
@@ -139,6 +145,31 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _presetInfoClicked(ev: Event): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+
+    const target = ev.currentTarget as HTMLElement & { preset: string };
+    const presetId = target.preset;
+    const current = [...this._enabledPresets];
+    const isEnabled = current.includes(presetId);
+
+    if (isEnabled) {
+      // Don't allow disabling the last preset
+      if (current.length <= 1) {
+        return;
+      }
+      const idx = current.indexOf(presetId);
+      current.splice(idx, 1);
+    } else {
+      current.push(presetId);
+    }
+
+    this._config = { ...this._config, presets: current };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   private _testPreset(ev: Event): void {
     const target = ev.currentTarget as HTMLElement & { preset: string };
     const presetId = target.preset;
@@ -208,11 +239,43 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         margin-bottom: 12px;
       }
 
+      .presets-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 32px;
+        row-gap: 4px;
+        position: relative;
+      }
+
+      /* Draw a single continuous vertical divider down the center */
+      .presets-grid::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background-color: var(--divider-color, #e0e0e0);
+      }
+
       .preset-row {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+      }
+
+      .preset-info {
+        display: flex;
+        align-items: center;
         gap: 12px;
-        padding: 8px 0 8px 24px;
+        cursor: pointer;
+      }
+
+      .preset-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .preset-row ha-icon {
@@ -224,15 +287,22 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       .preset-label {
         font-size: 14px;
         color: var(--primary-text-color);
-        flex-grow: 1;
       }
 
       .test-button {
-        /* Flat text button style, commonly used for 'Add X' actions in HA */
-        --mdc-button-horizontal-padding: 4px;
-        --mdc-typography-button-font-size: 14px;
-        --mdc-typography-button-text-transform: none;
-        margin-right: 8px;
+        background: none;
+        border: 1px solid var(--primary-color);
+        border-radius: 4px;
+        color: var(--primary-color);
+        cursor: pointer;
+        font-size: 12px;
+        font-family: inherit;
+        padding: 4px 12px;
+        transition: background-color 0.2s;
+      }
+
+      .test-button:hover {
+        background-color: rgba(var(--rgb-primary-color), 0.1);
       }
     `;
   }

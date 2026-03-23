@@ -1783,14 +1783,14 @@ export const presetRegistry: readonly Preset[] = [
   confettiPreset,
   fireworksPreset,
   snowPreset,
-  starsPreset,
+  vehiclesPreset,
   heartsPreset,
   rocketsPreset,
   rainbowPreset,
   dinosaursPreset,
   unicornPreset,
   sportsPreset,
-  vehiclesPreset,
+  starsPreset,
   overloadPreset,
 ];
 
