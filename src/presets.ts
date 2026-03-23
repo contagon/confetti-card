@@ -1350,6 +1350,245 @@ const unicornPreset: Preset = {
 };
 
 // ---------------------------------------------------------------------------
+// Preset: Sports (bouncing sports balls)
+// ---------------------------------------------------------------------------
+
+const soccerShape = confetti.shapeFromText({ text: '⚽', scalar: 2 });
+const basketballShape = confetti.shapeFromText({ text: '🏀', scalar: 2 });
+const footballShape = confetti.shapeFromText({ text: '🏈', scalar: 2 });
+const baseballShape = confetti.shapeFromText({ text: '⚾', scalar: 2 });
+const tennisShape = confetti.shapeFromText({ text: '🎾', scalar: 2 });
+
+const sportsPreset: Preset = {
+  id: 'sports',
+  label: 'Sports',
+  icon: 'mdi:soccer',
+
+  run(canvas) {
+    const myConfetti = confetti.create(canvas, { resize: true });
+    const duration = 4000;
+    const end = Date.now() + duration;
+    let raf = 0;
+    let cleaned = false;
+
+    const frame = () => {
+      if (cleaned) return;
+
+      if (Math.random() < 0.25) {
+        myConfetti({
+          particleCount: 3,
+          startVelocity: 60 + Math.random() * 40,
+          angle: 60 + Math.random() * 60,
+          spread: 30,
+          ticks: 200,
+          gravity: 1.5,
+          origin: { x: Math.random(), y: 1 },
+          shapes: [soccerShape, basketballShape, footballShape, baseballShape, tennisShape],
+          scalar: 1.5 + Math.random(),
+          flat: true,
+        });
+      }
+
+      if (Date.now() < end) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        setTimeout(() => {
+          if (!cleaned) {
+            myConfetti.reset();
+            canvas.remove();
+            cleaned = true;
+          }
+        }, 3000);
+      }
+    };
+
+    frame();
+
+    return () => {
+      if (!cleaned) {
+        cleaned = true;
+        cancelAnimationFrame(raf);
+        myConfetti.reset();
+        canvas.remove();
+      }
+    };
+  },
+
+  playSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.3;
+      masterGain.connect(ctx.destination);
+
+      // Whistle sound
+      const whistle = ctx.createOscillator();
+      const whistleGain = ctx.createGain();
+      whistle.type = 'triangle';
+      whistle.frequency.setValueAtTime(1200, now);
+      whistle.frequency.linearRampToValueAtTime(1400, now + 0.1);
+      whistle.frequency.setValueAtTime(1200, now + 0.15);
+      whistle.frequency.linearRampToValueAtTime(1400, now + 0.4);
+
+      whistleGain.gain.setValueAtTime(0, now);
+      whistleGain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+      whistleGain.gain.linearRampToValueAtTime(0.0, now + 0.1);
+      whistleGain.gain.linearRampToValueAtTime(0.3, now + 0.15);
+      whistleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+      whistle.connect(whistleGain);
+      whistleGain.connect(masterGain);
+      whistle.start(now);
+      whistle.stop(now + 0.6);
+
+      // Bouncing ball thuds
+      for (let i = 0; i < 6; i++) {
+        const t = now + 0.3 + i * 0.4 + Math.random() * 0.2;
+        const thud = ctx.createOscillator();
+        const thudGain = ctx.createGain();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(150, t);
+        thud.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+        thudGain.gain.setValueAtTime(0.4, t);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        thud.connect(thudGain);
+        thudGain.connect(masterGain);
+        thud.start(t);
+        thud.stop(t + 0.25);
+      }
+    } catch {
+      // Sound is nice-to-have.
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Preset: Vehicles (cars, trucks, tractors)
+// ---------------------------------------------------------------------------
+
+const tractorShape = confetti.shapeFromText({ text: '🚜', scalar: 2 });
+const truckShape = confetti.shapeFromText({ text: '🚛', scalar: 2 });
+const carShape = confetti.shapeFromText({ text: '🚗', scalar: 2 });
+const fireEngineShape = confetti.shapeFromText({ text: '🚒', scalar: 2 });
+const policeCarShape = confetti.shapeFromText({ text: '🚓', scalar: 2 });
+
+const vehiclesPreset: Preset = {
+  id: 'vehicles',
+  label: 'Vehicles',
+  icon: 'mdi:car',
+
+  run(canvas) {
+    const myConfetti = confetti.create(canvas, { resize: true });
+    const duration = 5000;
+    const end = Date.now() + duration;
+    let raf = 0;
+    let cleaned = false;
+    let frameCount = 0;
+
+    const frame = () => {
+      if (cleaned) return;
+      frameCount++;
+
+      // Drive all vehicles from right to left so they face forward
+      // Emojis naturally face left, so this prevents them from driving backwards!
+      if (frameCount % 6 === 0) {
+        myConfetti({
+          particleCount: 2,
+          startVelocity: 12 + Math.random() * 8, // Slower, relaxed speed
+          angle: 180, // Always move left
+          spread: 8,
+          ticks: 800, // Stay on screen longer to make the full trip at low speed
+          decay: 0.995, // Very little air resistance so they don't stop mid-screen
+          gravity: 0,
+          origin: { x: 1.1, y: 0.1 + Math.random() * 0.8 },
+          shapes: [tractorShape, carShape, fireEngineShape, truckShape, policeCarShape],
+          scalar: 1.5 + Math.random(),
+          flat: true,
+        });
+      }
+
+      if (Date.now() < end) {
+        raf = requestAnimationFrame(frame);
+      } else {
+        setTimeout(() => {
+          if (!cleaned) {
+            myConfetti.reset();
+            canvas.remove();
+            cleaned = true;
+          }
+        }, 5000); // Give them extra time to drive off screen
+      }
+    };
+
+    frame();
+
+    return () => {
+      if (!cleaned) {
+        cleaned = true;
+        cancelAnimationFrame(raf);
+        myConfetti.reset();
+        canvas.remove();
+      }
+    };
+  },
+
+  playSound() {
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0.2;
+      masterGain.connect(ctx.destination);
+
+      // Honk Honk!
+      const playHonk = (time: number, freq: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq;
+
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(0.2, time + 0.02);
+        gain.gain.linearRampToValueAtTime(0.15, time + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(time);
+        osc.stop(time + 0.25);
+      };
+
+      playHonk(now, 440);
+      playHonk(now + 0.25, 440);
+
+      playHonk(now + 1.2, 523.25);
+      playHonk(now + 1.45, 523.25);
+
+      // Engine rumble
+      const rumble = ctx.createOscillator();
+      const rumbleGain = ctx.createGain();
+      rumble.type = 'sawtooth';
+      rumble.frequency.setValueAtTime(40, now);
+      rumble.frequency.linearRampToValueAtTime(80, now + 1.5);
+      rumble.frequency.linearRampToValueAtTime(30, now + 3.0);
+
+      rumbleGain.gain.setValueAtTime(0, now);
+      rumbleGain.gain.linearRampToValueAtTime(0.3, now + 0.5);
+      rumbleGain.gain.linearRampToValueAtTime(0.3, now + 2.0);
+      rumbleGain.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+
+      rumble.connect(rumbleGain);
+      rumbleGain.connect(masterGain);
+      rumble.start(now);
+      rumble.stop(now + 3.1);
+    } catch {
+      // Sound is nice-to-have.
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Preset: Overload  (massive wall-to-wall confetti chaos)
 // ---------------------------------------------------------------------------
 
@@ -1550,6 +1789,8 @@ export const presetRegistry: readonly Preset[] = [
   rainbowPreset,
   dinosaursPreset,
   unicornPreset,
+  sportsPreset,
+  vehiclesPreset,
   overloadPreset,
 ];
 
