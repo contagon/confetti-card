@@ -3,7 +3,7 @@ import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helper
 import { customElement, property, state } from 'lit/decorators.js';
 
 import type { ConfettiCardConfig } from './types';
-import { presetRegistry } from './presets';
+import { presetRegistry, getPreset, createFullScreenCanvas } from './presets';
 
 @customElement('confetti-card-editor')
 export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor {
@@ -57,6 +57,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
                 ></ha-switch>
                 <ha-icon .icon=${preset.icon}></ha-icon>
                 <span class="preset-label">${preset.label}</span>
+                <mwc-button class="test-button" .preset=${preset.id} @click=${this._testPreset}> Test </mwc-button>
               </div>
             `,
           )}
@@ -138,6 +139,20 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _testPreset(ev: Event): void {
+    const target = ev.currentTarget as HTMLElement & { preset: string };
+    const presetId = target.preset;
+    const preset = getPreset(presetId);
+    if (!preset) return;
+
+    // Create a canvas with high z-index to overlay editor
+    const canvas = createFullScreenCanvas(999999);
+    preset.run(canvas);
+    if (this._config?.sound) {
+      preset.playSound();
+    }
+  }
+
   static get styles() {
     return css`
       .editor-container {
@@ -209,6 +224,11 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
       .preset-label {
         font-size: 14px;
         color: var(--primary-text-color);
+        flex-grow: 1;
+      }
+
+      .test-button {
+        --mdc-theme-primary: var(--primary-color);
       }
     `;
   }
