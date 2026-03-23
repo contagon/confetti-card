@@ -6,7 +6,6 @@ I was recently making a wall dashboard with chores for my kids and wanted to mak
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 [![GitHub Activity][commits-shield]][commits]
 
 ---
@@ -27,12 +26,14 @@ Features:
 
 ### HACS (recommended)
 
-TODO: This is slightly wrong! The card requires a custom repo in HACS right now.
+This card is not yet in the default HACS repository, so you'll need to add it as a custom repository:
 
 1. Open HACS in your Home Assistant instance.
-2. Go to **Frontend** and click **+ Explore & Download Repositories**.
-3. Search for **Confetti Card** and click **Download**.
-4. Refresh your browser.
+2. Click the three dots in the top right corner and select **Custom repositories**.
+3. Add the repository URL: `https://github.com/contagon/confetti-card`
+4. Select **Dashboard** as the category and click **Add**.
+5. Go to **Frontend**, search for **Confetti Card**, and click **Download**.
+6. Refresh your browser.
 
 ### Manual
 
@@ -217,9 +218,9 @@ See the [thomasloven wiki][troubleshooting].
 
 ---
 
-[commits-shield]: https://img.shields.io/github/commit-activity/y/custom-cards/confetti-card.svg?style=for-the-badge
-[commits]: https://github.com/custom-cards/confetti-card/commits/master
-[license-shield]: https://img.shields.io/github/license/custom-cards/confetti-card.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/custom-cards/confetti-card.svg?style=for-the-badge
-[releases]: https://github.com/custom-cards/confetti-card/releases
+[commits-shield]: https://img.shields.io/github/commit-activity/y/contagon/confetti-card.svg?style=for-the-badge
+[commits]: https://github.com/contagon/confetti-card/commits/master
+[license-shield]: https://img.shields.io/github/license/contagon/confetti-card.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/contagon/confetti-card.svg?style=for-the-badge
+[releases]: https://github.com/contagon/confetti-card/releases
 [troubleshooting]: https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins
