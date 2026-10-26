@@ -7,6 +7,7 @@ import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { checkConditionsMet } from './conditions';
 import { presetRegistry, pickRandomPreset, createFullScreenCanvas } from './presets';
+import { normalizeSoundVolume } from './audio';
 
 console.info(
   `%c  CONFETTI-CARD \n%c  ${localize('common.version')} ${CARD_VERSION}    `,
@@ -36,7 +37,7 @@ export class ConfettiCard extends LitElement {
   public static getStubConfig(): Record<string, unknown> {
     return {
       conditions: [],
-      sound: false,
+      sound: 0,
       presets: presetRegistry.map((p) => p.id),
     };
   }
@@ -157,10 +158,8 @@ export class ConfettiCard extends LitElement {
     const enabledIds = this.config.presets!;
     const preset = pickRandomPreset(enabledIds);
 
-    // Play preset-specific sound if enabled.
-    if (this.config?.sound) {
-      preset.playSound(this.config.sound_volume);
-    }
+    // Presets skip audio generation when sound is off.
+    preset.playSound(this.config.sound);
 
     // Use a low z-index so confetti renders behind Bubble Card popups (z-index 5).
     const zIndex = this.config.behind_popup ? 3 : 99999;
@@ -211,7 +210,7 @@ export class ConfettiCard extends LitElement {
     const parts: string[] = [];
     parts.push(conditionCount > 0 ? `${conditionCount} condition${conditionCount !== 1 ? 's' : ''}` : 'No conditions');
     parts.push(`${presetCount} preset${presetCount !== 1 ? 's' : ''}`);
-    if (this.config?.sound) {
+    if (normalizeSoundVolume(this.config?.sound) > 0) {
       parts.push('sound on');
     }
     const subtitle = parts.join(' · ');

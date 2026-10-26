@@ -1,7 +1,7 @@
 {
   "editor": {
-    "sound_volume": "Sound volume",
-    "sound_volume_help": "100% is the original volume. Higher settings may cause distortion."
+    "sound": "Sound volume",
+    "sound_help": "0 turns sound off; 1 is the original volume. Higher settings may cause distortion."
   },
   "common": {
     "version": "Version",

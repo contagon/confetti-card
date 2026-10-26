@@ -41,7 +41,7 @@ export interface Preset {
    * and stops any running animations.
    */
   run(canvas: HTMLCanvasElement): () => void;
-  /** Play the associated sound effect via Web Audio API. */
+  /** Play with a 0–5 gain multiplier; omitted or zero skips audio generation. */
   playSound(volume?: number): void;
 }
 
@@ -121,11 +121,13 @@ const confettiPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.3 * sound;
       masterGain.connect(ctx.destination);
 
       // Ascending fanfare notes
@@ -240,11 +242,13 @@ const fireworksPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.25 * sound;
       masterGain.connect(ctx.destination);
 
       // Multiple boom + crackle bursts
@@ -345,11 +349,13 @@ const snowPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.15 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.15 * sound;
       masterGain.connect(ctx.destination);
 
       // Gentle wind-chime tones: pentatonic scale, soft and airy
@@ -463,11 +469,13 @@ const starsPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.2 * sound;
       masterGain.connect(ctx.destination);
 
       // Magical sparkle: ascending arpeggio with shimmering harmonics
@@ -587,11 +595,13 @@ const heartsPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.2 * sound;
       masterGain.connect(ctx.destination);
 
       // Warm ascending notes — soft and sweet
@@ -731,11 +741,13 @@ const rocketsPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.25 * sound;
       masterGain.connect(ctx.destination);
 
       // Rocket whoosh (rising frequency sweep)
@@ -900,11 +912,13 @@ const rainbowPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.2 * sound;
       masterGain.connect(ctx.destination);
 
       // Ascending major scale — bright and happy like a rainbow
@@ -1075,11 +1089,13 @@ const dinosaursPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.3 * sound;
       masterGain.connect(ctx.destination);
 
       // Heavy stomp sounds — low thuds
@@ -1287,11 +1303,13 @@ const unicornPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.2 * sound;
       masterGain.connect(ctx.destination);
 
       // Magical harp glissando — dreamy ascending notes
@@ -1416,11 +1434,13 @@ const sportsPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.3 * sound;
       masterGain.connect(ctx.destination);
 
       // Whistle sound
@@ -1535,11 +1555,13 @@ const vehiclesPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.2 * sound;
       masterGain.connect(ctx.destination);
 
       // Honk Honk!
@@ -1708,11 +1730,13 @@ const overloadPreset: Preset = {
   },
 
   playSound(volume) {
+    const sound = normalizeSoundVolume(volume);
+    if (sound === 0) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
+      masterGain.gain.value = 0.25 * sound;
       masterGain.connect(ctx.destination);
 
       // Chaotic layered fanfares — multiple rapid ascending runs

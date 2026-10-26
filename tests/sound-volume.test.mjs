@@ -4,6 +4,7 @@ import { build } from 'esbuild';
 
 // Exercise the real preset synthesis; replace only the browser's audio output.
 const gains = [];
+let audioContextsCreated = 0;
 const parameter = () => ({
   value: 0,
   setValueAtTime() {},
@@ -11,6 +12,9 @@ const parameter = () => ({
   exponentialRampToValueAtTime() {},
 });
 globalThis.AudioContext = class {
+  constructor() {
+    audioContextsCreated++;
+  }
   state = 'running';
   currentTime = 0;
   destination = {};
@@ -47,13 +51,20 @@ const baseGains = {
 // must change the gain delivered to the destination and fail these tests.
 for (const preset of presetRegistry) {
   for (const [label, volume, multiplier] of [
-    ['default', undefined, 1], ['muted', 0, 0], ['quieter', 50, 0.5],
-    ['unchanged', 100, 1], ['boosted', 500, 5], ['negative', -10, 0],
-    ['above maximum', 600, 5], ['NaN', NaN, 1], ['infinite', Infinity, 1],
+    ['default', undefined, 0], ['muted', 0, 0], ['quieter', 0.5, 0.5],
+    ['unchanged', 1, 1], ['boosted', 5, 5], ['negative', -1, 0],
+    ['above maximum', 6, 5], ['NaN', NaN, 0], ['infinite', Infinity, 0],
+    ['legacy boolean', true, 0], ['string', '3', 0], ['null', null, 0],
   ]) {
     test(`${preset.id}: ${label} volume scales the master gain`, () => {
       gains.length = 0;
+      const contextsBefore = audioContextsCreated;
       preset.playSound(volume);
+      if (multiplier === 0) {
+        assert.equal(audioContextsCreated, contextsBefore, 'muting does not create an audio context');
+        assert.equal(gains.length, 0, 'muting skips audio synthesis entirely');
+        return;
+      }
       assert.ok(gains.length > 0, 'sound synthesis creates a master gain');
       assert.ok(Math.abs(gains[0].gain.value - baseGains[preset.id] * multiplier) < 1e-12);
     });

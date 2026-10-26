@@ -64,8 +64,7 @@ conditions:
 
 ```yaml
 type: custom:confetti-card
-sound: true
-sound_volume: 300
+sound: 3
 presets:
   - confetti
   - fireworks
@@ -85,15 +84,17 @@ conditions:
 | -------------- | -------- | ------------ | ---------------------------------------------------------------- | ----------- |
 | `type`         | string   | **Required** | `custom:confetti-card`                                           |             |
 | `conditions`   | list     | **Optional** | List of HA conditions -- confetti fires when all become true     | `[]`        |
-| `sound`        | boolean  | **Optional** | Play the preset's celebration sound effect                       | `false`     |
-| `sound_volume` | number   | **Optional** | Sound volume percentage (0–500); 100 preserves the original gain | `100`       |
+| `sound`        | number   | **Optional** | Sound gain multiplier (0–5); 0 is off, 1 is the original volume   | `0`         |
 | `behind_popup` | boolean  | **Optional** | Render confetti behind Bubble Card popups instead of in front    | `false`     |
 | `presets`      | string[] | **Optional** | List of enabled preset IDs (a random one is chosen each trigger) | all presets |
 
-The sound volume slider appears when sound is enabled and also applies to **Try** previews.
-Set `sound_volume: 0` to mute or increase it above `100` to boost each effect's existing master gain
-(up to five times at `500`). Higher settings may cause distortion. Device volume still applies.
-Values outside 0–500 are clamped; omitted or non-numeric values use 100.
+The sound volume slider is always available and also applies to **Try** previews.
+Set `sound: 0` to turn sound off, `sound: 1` for the original volume, or increase it up to `5`
+to boost each effect's existing master gain by up to five times. Fractional values such as `0.5`
+are supported. Higher settings may cause distortion. Device volume still applies.
+Values outside 0–5 are clamped; omitted or invalid values (including booleans) turn sound off.
+No audio is generated when sound is off. The old boolean `sound` option and `sound_volume`
+option are no longer supported; use the numeric `sound` setting instead.
 
 ### Available presets
 
