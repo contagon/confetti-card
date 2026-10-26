@@ -64,7 +64,7 @@ conditions:
 
 ```yaml
 type: custom:confetti-card
-sound: true
+sound: 3
 presets:
   - confetti
   - fireworks
@@ -84,9 +84,17 @@ conditions:
 | -------------- | -------- | ------------ | ---------------------------------------------------------------- | ----------- |
 | `type`         | string   | **Required** | `custom:confetti-card`                                           |             |
 | `conditions`   | list     | **Optional** | List of HA conditions -- confetti fires when all become true     | `[]`        |
-| `sound`        | boolean  | **Optional** | Play the preset's celebration sound effect                       | `false`     |
+| `sound`        | number   | **Optional** | Sound gain multiplier (0–5); 0 is off, 1 is the original volume   | `0`         |
 | `behind_popup` | boolean  | **Optional** | Render confetti behind Bubble Card popups instead of in front    | `false`     |
 | `presets`      | string[] | **Optional** | List of enabled preset IDs (a random one is chosen each trigger) | all presets |
+
+The sound volume slider is always available and also applies to **Try** previews.
+Set `sound: 0` to turn sound off, `sound: 1` for the original volume, or increase it up to `5`
+to boost each effect's existing master gain by up to five times. Fractional values such as `0.5`
+are supported. Higher settings may cause distortion. Device volume still applies.
+Values outside 0–5 are clamped; omitted or invalid values (including booleans) turn sound off.
+No audio is generated when sound is off. The old boolean `sound` option and `sound_volume`
+option are no longer supported; use the numeric `sound` setting instead.
 
 ### Available presets
 
@@ -159,6 +167,7 @@ Copy or symlink `dist/confetti-card.js` into your HA `www/` folder, or use the d
 | `yarn rollup` | Production bundle only (skips lint)                    |
 | `yarn start`  | Development watcher with hot reload (`rollup --watch`) |
 | `yarn lint`   | ESLint across all `src/` files                         |
+| `yarn test`   | Audio volume regression tests                         |
 
 ### Project structure
 

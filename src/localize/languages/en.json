@@ -1,4 +1,8 @@
 {
+  "editor": {
+    "sound": "Sound volume",
+    "sound_help": "0 turns sound off; 1 is the original volume. Higher settings may cause distortion."
+  },
   "common": {
     "version": "Version",
     "invalid_configuration": "Invalid configuration",

@@ -4,6 +4,8 @@ import { customElement, property, state } from 'lit/decorators.js';
 
 import type { ConfettiCardConfig } from './types';
 import { presetRegistry, getPreset, createFullScreenCanvas } from './presets';
+import { normalizeSoundVolume } from './audio';
+import { localize } from './localize/localize';
 
 @customElement('confetti-card-editor')
 export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor {
@@ -35,10 +37,18 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         <div class="misc-section">
           <span class="section-header">Misc</span>
           <span class="section-description">Additional options for the confetti effect.</span>
-          <div class="sound-toggle">
-            <span class="toggle-label" @click=${this._soundToggled}>Play celebration sound</span>
-            <ha-switch .checked=${this._config.sound ?? false} @change=${this._soundToggled}></ha-switch>
-          </div>
+          <label class="volume-control">
+            <span>${localize('editor.sound')}: ${normalizeSoundVolume(this._config.sound)}×</span>
+            <input
+              type="range"
+              min="0"
+              max="5"
+              step="0.1"
+              .value=${String(normalizeSoundVolume(this._config.sound))}
+              @input=${this._volumeChanged}
+            />
+          </label>
+          <p class="description">${localize('editor.sound_help')}</p>
           <div class="sound-toggle">
             <span class="toggle-label" @click=${this._behindPopupToggled}>Render behind popups</span>
             <ha-switch .checked=${this._config.behind_popup ?? false} @change=${this._behindPopupToggled}></ha-switch>
@@ -104,15 +114,12 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
-  private _soundToggled(ev: Event): void {
-    if (!this._config || !this.hass) {
-      return;
-    }
+  private _volumeChanged(ev: Event): void {
+    ev.stopPropagation();
+    if (!this._config || !this.hass) return;
 
-    const target = ev.target as HTMLInputElement;
-    // If clicked on the label, toggle the current value; otherwise use the switch's checked state
-    const checked = target.tagName === 'HA-SWITCH' ? target.checked : !(this._config.sound ?? false);
-    this._config = { ...this._config, sound: checked };
+    const volume = (ev.currentTarget as HTMLInputElement).valueAsNumber;
+    this._config = { ...this._config, sound: normalizeSoundVolume(volume) };
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
@@ -191,9 +198,7 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
     // Create a canvas with high z-index to overlay editor
     const canvas = createFullScreenCanvas(999999);
     preset.run(canvas);
-    if (this._config?.sound) {
-      preset.playSound();
-    }
+    preset.playSound(this._config?.sound);
   }
 
   static get styles() {
@@ -207,6 +212,19 @@ export class ConfettiCardEditor extends LitElement implements LovelaceCardEditor
         font-size: 14px;
         color: var(--secondary-text-color);
         line-height: 1.5;
+      }
+
+      .volume-control {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 8px 0;
+      }
+
+      .volume-control input {
+        width: 100%;
+        margin: 0;
+        accent-color: var(--primary-color);
       }
 
       .sound-toggle {

@@ -86,8 +86,8 @@ export type Condition =
 export interface ConfettiCardConfig extends LovelaceCardConfig {
   type: string;
   conditions?: (Condition | LegacyCondition)[];
-  /** Play a celebration sound when confetti fires. Defaults to false. */
-  sound?: boolean;
+  /** Sound gain multiplier, from 0 (off) to 5. Defaults to 0; 1 is the original gain. */
+  sound?: number;
   /** Enabled preset IDs. Defaults to all presets enabled. */
   presets?: string[];
   /** Show confetti behind Bubble Card popups instead of in front. Defaults to false. */

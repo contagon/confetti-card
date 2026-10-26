@@ -1,4 +1,8 @@
 {
+  "editor": {
+    "sound": "Lydvolum",
+    "sound_help": "0 slår av lyden; 1 er det opprinnelige volumet. Høyere innstillinger kan gi forvrengning."
+  },
   "common": {
     "version": "Versjon",
     "invalid_configuration": "Ikke gyldig konfiguration",
