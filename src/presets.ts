@@ -6,6 +6,7 @@
  * as pushing another entry to the `presetRegistry` array.
  */
 import confetti from 'canvas-confetti';
+import { normalizeSoundVolume } from './audio';
 
 // ---------------------------------------------------------------------------
 // Shared audio context
@@ -41,7 +42,7 @@ export interface Preset {
    */
   run(canvas: HTMLCanvasElement): () => void;
   /** Play the associated sound effect via Web Audio API. */
-  playSound(): void;
+  playSound(volume?: number): void;
 }
 
 // ---------------------------------------------------------------------------
@@ -119,12 +120,12 @@ const confettiPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3;
+      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Ascending fanfare notes
@@ -238,12 +239,12 @@ const fireworksPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25;
+      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Multiple boom + crackle bursts
@@ -343,12 +344,12 @@ const snowPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.15;
+      masterGain.gain.value = 0.15 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Gentle wind-chime tones: pentatonic scale, soft and airy
@@ -461,12 +462,12 @@ const starsPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2;
+      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Magical sparkle: ascending arpeggio with shimmering harmonics
@@ -585,12 +586,12 @@ const heartsPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2;
+      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Warm ascending notes — soft and sweet
@@ -729,12 +730,12 @@ const rocketsPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25;
+      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Rocket whoosh (rising frequency sweep)
@@ -898,12 +899,12 @@ const rainbowPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2;
+      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Ascending major scale — bright and happy like a rainbow
@@ -1073,12 +1074,12 @@ const dinosaursPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3;
+      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Heavy stomp sounds — low thuds
@@ -1285,12 +1286,12 @@ const unicornPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2;
+      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Magical harp glissando — dreamy ascending notes
@@ -1414,12 +1415,12 @@ const sportsPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.3;
+      masterGain.gain.value = 0.3 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Whistle sound
@@ -1533,12 +1534,12 @@ const vehiclesPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.2;
+      masterGain.gain.value = 0.2 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Honk Honk!
@@ -1706,12 +1707,12 @@ const overloadPreset: Preset = {
     };
   },
 
-  playSound() {
+  playSound(volume) {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const masterGain = ctx.createGain();
-      masterGain.gain.value = 0.25;
+      masterGain.gain.value = 0.25 * (normalizeSoundVolume(volume) / 100);
       masterGain.connect(ctx.destination);
 
       // Chaotic layered fanfares — multiple rapid ascending runs

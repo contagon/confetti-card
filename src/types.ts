@@ -88,6 +88,8 @@ export interface ConfettiCardConfig extends LovelaceCardConfig {
   conditions?: (Condition | LegacyCondition)[];
   /** Play a celebration sound when confetti fires. Defaults to false. */
   sound?: boolean;
+  /** Sound volume percentage, from 0 to 500. Defaults to 100 (original gain). */
+  sound_volume?: number;
   /** Enabled preset IDs. Defaults to all presets enabled. */
   presets?: string[];
   /** Show confetti behind Bubble Card popups instead of in front. Defaults to false. */

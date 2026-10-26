@@ -65,6 +65,7 @@ conditions:
 ```yaml
 type: custom:confetti-card
 sound: true
+sound_volume: 300
 presets:
   - confetti
   - fireworks
@@ -85,8 +86,14 @@ conditions:
 | `type`         | string   | **Required** | `custom:confetti-card`                                           |             |
 | `conditions`   | list     | **Optional** | List of HA conditions -- confetti fires when all become true     | `[]`        |
 | `sound`        | boolean  | **Optional** | Play the preset's celebration sound effect                       | `false`     |
+| `sound_volume` | number   | **Optional** | Sound volume percentage (0–500); 100 preserves the original gain | `100`       |
 | `behind_popup` | boolean  | **Optional** | Render confetti behind Bubble Card popups instead of in front    | `false`     |
 | `presets`      | string[] | **Optional** | List of enabled preset IDs (a random one is chosen each trigger) | all presets |
+
+The sound volume slider appears when sound is enabled and also applies to **Try** previews.
+Set `sound_volume: 0` to mute or increase it above `100` to boost each effect's existing master gain
+(up to five times at `500`). Higher settings may cause distortion. Device volume still applies.
+Values outside 0–500 are clamped; omitted or non-numeric values use 100.
 
 ### Available presets
 
@@ -159,6 +166,7 @@ Copy or symlink `dist/confetti-card.js` into your HA `www/` folder, or use the d
 | `yarn rollup` | Production bundle only (skips lint)                    |
 | `yarn start`  | Development watcher with hot reload (`rollup --watch`) |
 | `yarn lint`   | ESLint across all `src/` files                         |
+| `yarn test`   | Audio volume regression tests                         |
 
 ### Project structure
 

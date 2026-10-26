@@ -159,7 +159,7 @@ export class ConfettiCard extends LitElement {
 
     // Play preset-specific sound if enabled.
     if (this.config?.sound) {
-      preset.playSound();
+      preset.playSound(this.config.sound_volume);
     }
 
     // Use a low z-index so confetti renders behind Bubble Card popups (z-index 5).

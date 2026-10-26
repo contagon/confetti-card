@@ -41,6 +41,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "start": "rollup -c rollup.config.dev.js --watch",
     "build": "yarn clean && yarn lint && yarn rollup",
     "clean": "rm -rf dist",

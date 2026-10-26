@@ -1,4 +1,8 @@
 {
+  "editor": {
+    "sound_volume": "Lydvolum",
+    "sound_volume_help": "100% er det opprinnelige volumet. Høyere innstillinger kan gi forvrengning."
+  },
   "common": {
     "version": "Versjon",
     "invalid_configuration": "Ikke gyldig konfiguration",
